@@ -1,0 +1,74 @@
+DEBUG:spotipy.client:Sending GET to https://api.spotify.com/v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm with Params: {} Headers: {'Authorization': 'Bearer BQCisxMr5drSLNtlGb_-jD1gD8ZJ9FZjSicH7P0c3KcEZUJZS81urViw3fOaMNpjznxfm_7uBj0zdqFOVmQZvEY2RFRnwevxtkSrfD4c1oSKAYFHsn75Fx63R-SYPMKtRzYAA6dtpQFEEiiuMKmOCV7fPrCK1yKvKm9unMNO9pLOFySOSkWjDCCNnoBRxTbnw64t_WunVmeFAfwJ0dMtPKID', 'Content-Type': 'application/json'} and Body: None
+DEBUG:urllib3.connectionpool:https://api.spotify.com:443 "GET /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm HTTP/1.1" 429 None
+DEBUG:urllib3.util.retry:Incremented Retry for (url='/v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm'): Retry(total=2, connect=None, read=False, redirect=None, status=2)
+DEBUG:urllib3.connectionpool:Retry: /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm
+DEBUG:urllib3.connectionpool:https://api.spotify.com:443 "GET /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm HTTP/1.1" 429 None
+DEBUG:urllib3.util.retry:Incremented Retry for (url='/v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm'): Retry(total=1, connect=None, read=False, redirect=None, status=1)
+DEBUG:urllib3.connectionpool:Retry: /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm
+DEBUG:urllib3.connectionpool:https://api.spotify.com:443 "GET /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm HTTP/1.1" 429 None
+DEBUG:urllib3.util.retry:Incremented Retry for (url='/v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm'): Retry(total=0, connect=None, read=False, redirect=None, status=0)
+DEBUG:urllib3.connectionpool:Retry: /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm
+DEBUG:urllib3.connectionpool:https://api.spotify.com:443 "GET /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm HTTP/1.1" 429 None
+ERROR:spotipy.client:Max Retries reached
+urllib3.exceptions.ResponseError: too many 429 error responses
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\adapters.py", line 486, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 941, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 941, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 941, in urlopen
+    return self.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 931, in urlopen
+    retries = retries.increment(method, url, response=response, _pool=self)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\util\retry.py", line 515, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.spotify.com', port=443): Max retries exceeded with url: /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm (Caused by ResponseError('too many 429 error responses'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\spotipy\client.py", line 266, in _internal_call
+    response = self._session.request(
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\adapters.py", line 510, in send
+    raise RetryError(e, request=request)
+requests.exceptions.RetryError: HTTPSConnectionPool(host='api.spotify.com', port=443): Max retries exceeded with url: /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm (Caused by ResponseError('too many 429 error responses'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "e:\Programming\CSCE_470\project\parser.py", line 234, in <module>
+    main()
+  File "e:\Programming\CSCE_470\project\parser.py", line 188, in main
+    features.append(getSongFeatures(song_name, song_id))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "e:\Programming\CSCE_470\project\parser.py", line 104, in getSongFeatures
+    response = sp_client.audio_features((song_id))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\spotipy\client.py", line 1734, in audio_features
+    results = self._get("audio-features/?ids=" + trackid)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\spotipy\client.py", line 323, in _get
+    return self._internal_call("GET", url, payload, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ganidiot\AppData\Local\Programs\Python\Python311\Lib\site-packages\spotipy\client.py", line 307, in _internal_call
+    raise SpotifyException(
+spotipy.exceptions.SpotifyException: http status: 429, code:-1 - /v1/audio-features/?ids=6jo3Ckez5Al7MrA7m6LYWm:
+ Max Retries, reason: too many 429 error responses

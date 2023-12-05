@@ -13,10 +13,9 @@ import numpy as np
 import json
 
 import time
-requests_per_second = 4
+requests_per_second = 1
 
 # import logging
-
 # logger = logging.getLogger('parser.py')
 # logging.basicConfig(level='DEBUG')
 
@@ -25,7 +24,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 auth_manager = SpotifyOAuth(client_id=os.getenv("CLIENT_ID"),
                                         client_secret=os.getenv("CLIENT_SECRET"),
-                                        redirect_uri='http://localhost:3000',
+                                        redirect_uri='http://localhost:8080',
                                         scope='user-library-read playlist-modify-public')
 
 
@@ -61,7 +60,6 @@ def getUserPlaylists():
     
     while True:
         results = sp_client.current_user_playlists(limit=50, offset=cursor)
-        time.sleep(1 / requests_per_second)
         total = results['total']
         
         # print(results)
@@ -82,7 +80,6 @@ def getPlaylistSongs(playlist_id):
     songs = []
     
     results = sp_client.playlist_tracks(playlist_id=playlist_id)
-    time.sleep(1 / requests_per_second)
     
     # print(json.dumps(results, indent=4))
     
@@ -104,7 +101,6 @@ def getSongFeatures(song_name, song_id):
     print(f'Getting the features for {song_name}...')
     
     response = sp_client.audio_features((song_id))
-    time.sleep(1 / requests_per_second)
     
     features = dict()
     for feature in features_to_get:
@@ -129,7 +125,6 @@ def addSongToPlaylist(playlist_id, song_id, playlist_name, song_name):
     print(f'Adding {song_name} to the playlist {playlist_name}...')
     
     sp_client.playlist_add_items(playlist_id=playlist_id,items=[song_id])
-    time.sleep(1 / requests_per_second)
     return
 
 def addSongListToPlaylist(playlist_id, playlist_name, song_list):
@@ -138,7 +133,6 @@ def addSongListToPlaylist(playlist_id, playlist_name, song_list):
         print(f'Adding {song_name} to the playlist {playlist_name}...')
     
         sp_client.playlist_add_items(playlist_id=playlist_id,items=[song_id])
-        time.sleep(1 / requests_per_second)
     return
 
 
@@ -173,18 +167,19 @@ def main():
     print('Parsing playlists...')
     
     # Get songs for a playlist:
-    songs = getPlaylistSongs(parse_into_playlists[0][1])
+    # songs = getPlaylistSongs(parse_into_playlists[0][1])
     
     # testing if add to playlist works - works
     # addSongToPlaylist(parse_into_playlists[0][1], songs[0][1], parse_into_playlists[0][0], songs[0][0])
     
     # Get features of a song
-    features = getSongFeatures(songs[0][0], songs[0][1])
+    # features = getSongFeatures(songs[0][0], songs[0][1])
     
     # Generate all clusters (hopefully clusters) from the songs in each playlist being parsed into
     centroids = []
     
     for playlist_name, playlist_id in parse_into_playlists:
+        # time.sleep(1 / requests_per_second)
         songs = getPlaylistSongs(playlist_id)
         
         features = []
