@@ -2,6 +2,16 @@
 Come Back to Later:
 https://pypi.org/project/forceatlas2py/
 https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0098679
+
+TODO:
+ * Implement force graph visualiziation with realtime adjustments to parameters used for determining centroids to determine best features to use to make recommendations with
+ * Add data to postgres database
+ * Seperate script into multiple different scripts, one for populating database, another for making recommendations based on info in database
+ *
+ 
+Notes:
+ * Breakcore and Chill playlists are absorbing most of the recommendations currently
+ * The Sick! playlist (metalcore) seems to be hard to classify under the current supported features
 """
 
 import sys
@@ -45,6 +55,8 @@ sp_client = spotipy.Spotify(auth_manager=auth_manager)
 
 features_to_get = ['danceability','energy','loudness','speechiness','acousticness','instrumentalness','valence','tempo', 'key']
 
+jsonDump = open('jsonDump.json','w')
+
 def testUserSpecificFunctionality():
     results = sp_client.current_user_saved_tracks()
     for idx, item in enumerate(results['items']):
@@ -62,6 +74,7 @@ def getUserPlaylists():
     while True:
         try:
             results = sp_client.current_user_playlists(limit=50, offset=cursor)
+            jsonDump.write(json.dumps(results, indent=4))
         except spotipy.client.SpotifyException as err:
             print(err)
             sys.exit(1)
@@ -71,7 +84,7 @@ def getUserPlaylists():
         
         for _, item in enumerate(results['items']):
             count += 1
-            # print("%d %s" % (count, item['name']))
+            print("%d %s" % (count, item['name']))
             
             user_playlists.append((item['name'],item['id']))
             
@@ -86,6 +99,7 @@ def getPlaylistSongs(playlist_id):
     
     try:
         results = sp_client.playlist_tracks(playlist_id=playlist_id)
+        jsonDump.write(json.dumps(results, indent=4))
     except spotipy.client.SpotifyException as err:
             print(err)
             sys.exit(1)
@@ -111,6 +125,7 @@ def getSongFeatures(song_name, song_id):
     
     try:
         response = sp_client.audio_features((song_id))
+        jsonDump.write(json.dumps(response, indent=4))
     except spotipy.client.SpotifyException as err:
             print(err)
             sys.exit(1)
@@ -137,13 +152,15 @@ def getKNearestCluster():
 def addSongToPlaylist(playlist_id, song_id, playlist_name, song_name):
     print(f'Adding {song_name} to the playlist {playlist_name}...')
     
+    print(f'Playlist id = {playlist_id} | Song id = {song_id}')
+    
     try:
         sp_client.playlist_add_items(playlist_id=playlist_id,items=[song_id])
     except spotipy.client.SpotifyException as err:
             print(err)
             sys.exit(1)
     return
-
+ 
 def addSongListToPlaylist(playlist_id, playlist_name, song_list):
     
     for song_name, song_id in song_list:
@@ -173,8 +190,23 @@ def main():
     # print(playlist_to_sort)
     # return
     
-    # Playlists to Parse Into = 1 6 18 19 25 27 28 29 30
+    # Playlists to Parse Into = 1 6 13 19 25 27 28 29 30
+    '''
+    Playlist 2: Flavor of the Year (2023)
+    
+    Playlist 1: Climbing
+    Playlist 6: Breakcore
+    Playlist 13: Electronic
+    Playlist 19: Sick (metalcore playlist)
+    Playlist 25: Chill (in rock folder)
+    Playlist 27: ...
+    Playlist 28: Kpop
+    Playlist 29: Weeb
+    Playlist 30: R&B
+    '''
     parse_into_playlists_input = input('Enter number of playlists you want to parse song into (separate numbers by spaces) >>> ')
+    
+    playlist_name_id_dict = dict()
     
     parse_into_playlists = []
     for playlist_num in parse_into_playlists_input.split():
@@ -196,10 +228,13 @@ def main():
     # Get features of a song
     # features = getSongFeatures(songs[0][0], songs[0][1])
     
+    # <----------------------------------- Main Code ----------------------------------->
     # Generate all clusters (hopefully clusters) from the songs in each playlist being parsed into
     centroids = []
     
     for playlist_name, playlist_id in parse_into_playlists:
+        playlist_name_id_dict[playlist_name] = playlist_id
+        
         # time.sleep(1 / requests_per_second)
         songs = getPlaylistSongs(playlist_id)
         
@@ -218,6 +253,8 @@ def main():
         print(f'Centroid: {centroid}')
         
         centroids.append({playlist_name: centroid})
+        
+        time.sleep(5)
     
     print(centroids)
     
@@ -243,12 +280,19 @@ def main():
         # Display the closest centroid
         closest_centroid = rocchio_distances[0]
         
+        # show order of centroids
+        for rocchi_dist, playlist_name in rocchio_distances:
+            print(f'Playlist: {playlist_name}, Rocchio Distance: {rocchi_dist}')
+        print()
+        
         print(f'The song {song_name} is most similar to the playlist {closest_centroid[0]}')
         
         addSong = input('Do you want to add the song to the playlist (y or n) >>> ')
         
         if addSong == 'y':
-            addSongToPlaylist(closest_centroid[1], song_id)
+            addSongToPlaylist(playlist_name_id_dict[closest_centroid[0]], song_id, closest_centroid[0], song_name)
+    
+    jsonDump.close()
 
 if __name__ == "__main__":
     main()
